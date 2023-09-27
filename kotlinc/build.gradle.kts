@@ -20,8 +20,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
@@ -39,7 +39,7 @@ dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:4.3")
 
-    runtimeOnly("org.jetbrains.kotlin:kotlin-reflect:1.9.20-Beta2")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.20-Beta2")
     implementation("io.github.itsaky:nb-javac-android:17.0.0.3")
     implementation("org.jetbrains.intellij.deps:trove4j:1.0.20200330")
     implementation("org.jdom:jdom:2.0.2")
@@ -53,7 +53,7 @@ dependencies {
 
 publishing {
     publications {
-        register("release", MavenPublication::class) {
+        create<MavenPublication>("maven") {
             groupId = "org.cosmic.ide"
             artifactId = "kotlinc"
             version = "1.9.0-RC"
