@@ -1,15 +1,6 @@
 /*
- * This file is part of Cosmic IDE.
- * Cosmic IDE is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- * Cosmic IDE is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with Cosmic IDE. If not, see <https://www.gnu.org/licenses/>.
- */
-
-/*
- * This file is part of Cosmic IDE.
- * Cosmic IDE is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- * Cosmic IDE is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with Cosmic IDE. If not, see <https://www.gnu.org/licenses/>.
+ * Copyright 2010-2023 JetBrains s.r.o. and Kotlin Programming Language contributors.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
 package org.jetbrains.kotlin.cli.jvm.javac
@@ -25,40 +16,25 @@ import java.io.Writer
 class JavacLogger(
     context: Context,
     errorWriter: PrintWriter,
-    @Suppress("UNUSED_PARAMETER") warningWriter: PrintWriter,
+    warningWriter: PrintWriter,
     infoWriter: PrintWriter
 ) : Log(context, infoWriter, errorWriter) {
+    init {
+        context.put(Log.outKey, infoWriter)
+    }
 
     override fun printLines(kind: WriterKind, message: String, vararg args: Any?) {}
 
     companion object {
         fun preRegister(context: Context, messageCollector: MessageCollector) {
-            context.put(
-                logKey,
-                Context.Factory {
-                    JavacLogger(
-                        it,
-                        PrintWriter(
-                            MessageCollectorAdapter(
-                                messageCollector,
-                                CompilerMessageSeverity.ERROR
-                            )
-                        ),
-                        PrintWriter(
-                            MessageCollectorAdapter(
-                                messageCollector,
-                                CompilerMessageSeverity.WARNING
-                            )
-                        ),
-                        PrintWriter(
-                            MessageCollectorAdapter(
-                                messageCollector,
-                                CompilerMessageSeverity.INFO
-                            )
-                        )
-                    )
-                }
-            )
+            context.put(logKey, Context.Factory {
+                JavacLogger(
+                    it,
+                    PrintWriter(MessageCollectorAdapter(messageCollector, CompilerMessageSeverity.ERROR)),
+                    PrintWriter(MessageCollectorAdapter(messageCollector, CompilerMessageSeverity.WARNING)),
+                    PrintWriter(MessageCollectorAdapter(messageCollector, CompilerMessageSeverity.INFO))
+                )
+            })
         }
     }
 }

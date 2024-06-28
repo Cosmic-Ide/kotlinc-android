@@ -39,13 +39,13 @@ dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:4.3")
 
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.20-Beta2")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
     implementation("io.github.itsaky:nb-javac-android:17.0.0.3")
     implementation("org.jetbrains.intellij.deps:trove4j:1.0.20200330")
     implementation("org.jdom:jdom:2.0.2")
 
     implementation(projects.jaxp)
-    api(files("libs/kotlin-compiler-1.9.0-RC.jar"))
+    api(files("libs/kotlin-compiler-2.0.0.jar"))
 
     compileOnly(projects.theUnsafe)
 }
@@ -55,12 +55,12 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = "org.cosmic.ide"
-            artifactId = "kotlinc"
-            version = "1.9.0-RC"
+            artifactId = "kotlinc-android"
+            version = "2.0.0"
 
             pom {
                 name.set("Kotlin Compiler")
-                description.set("A port of the Kotlin Compiler to Android")
+                description.set("A port of the Kotlin Compiler for the Android platform.")
                 url.set("http://github.com/Cosmic-IDE/kotlinc")
                 licenses {
                     license {

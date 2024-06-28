@@ -1,22 +1,6 @@
 /*
- * This file is part of Cosmic IDE.
- * Cosmic IDE is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- * Cosmic IDE is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with Cosmic IDE. If not, see <https://www.gnu.org/licenses/>.
- */
-
-/*
- * This file is part of Cosmic IDE.
- * Cosmic IDE is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- * Cosmic IDE is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with Cosmic IDE. If not, see <https://www.gnu.org/licenses/>.
- */
-
-/*
- * This file is part of Cosmic IDE.
- * Cosmic IDE is a free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- * Cosmic IDE is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with Cosmic IDE. If not, see <https://www.gnu.org/licenses/>.
+ * Copyright 2010-2021 JetBrains s.r.o. and Kotlin Programming Language contributors.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 package org.jetbrains.kotlin.cli.jvm.compiler.jarfs
 
@@ -35,29 +19,16 @@ import java.nio.channels.FileChannel
 
 private typealias RandomAccessFileAndBuffer = Pair<RandomAccessFile, MappedByteBuffer>
 
-class FastJarFileSystem private constructor(internal val unmapBuffer: MappedByteBuffer.() -> Unit) :
-    DeprecatedVirtualFileSystem() {
+class FastJarFileSystem private constructor(internal val unmapBuffer: MappedByteBuffer.() -> Unit) : DeprecatedVirtualFileSystem() {
     private val myHandlers: MutableMap<String, FastJarHandler> =
-        ConcurrentFactoryMap.createMap { key: String ->
-            FastJarHandler(
-                this@FastJarFileSystem,
-                key
-            )
-        }
+        ConcurrentFactoryMap.createMap { key: String -> FastJarHandler(this@FastJarFileSystem, key) }
 
     internal val cachedOpenFileHandles: FileAccessorCache<File, RandomAccessFileAndBuffer> =
         object : FileAccessorCache<File, RandomAccessFileAndBuffer>(20, 10) {
             @Throws(IOException::class)
             override fun createAccessor(file: File): RandomAccessFileAndBuffer {
                 val randomAccessFile = RandomAccessFile(file, "r")
-                return Pair(
-                    randomAccessFile,
-                    randomAccessFile.channel.map(
-                        FileChannel.MapMode.READ_ONLY,
-                        0,
-                        randomAccessFile.length()
-                    )
-                )
+                return Pair(randomAccessFile, randomAccessFile.channel.map(FileChannel.MapMode.READ_ONLY, 0, randomAccessFile.length()))
             }
 
             @Throws(IOException::class)
@@ -87,6 +58,10 @@ class FastJarFileSystem private constructor(internal val unmapBuffer: MappedByte
 
     fun clearHandlersCache() {
         myHandlers.clear()
+        cleanOpenFilesCache()
+    }
+
+    fun cleanOpenFilesCache() {
         cachedOpenFileHandles.clear()
     }
 
@@ -107,12 +82,12 @@ class FastJarFileSystem private constructor(internal val unmapBuffer: MappedByte
 }
 
 
-//private val IS_PRIOR_9_JRE = System.getProperty("java.specification.version", "").startsWith("1.")
+// private val IS_PRIOR_9_JRE = System.getProperty("java.specification.version", "").startsWith("1.")
 
 private fun prepareCleanerCallback(): ((ByteBuffer) -> Unit)? {
     return try {
-        // API 26+ already allow using these methods
-//        if (IS_PRIOR_9_JRE) {
+        // We can use these on API 26+
+        // if (IS_PRIOR_9_JRE) {
         val directByteBuffer = Class.forName("java.nio.DirectByteBuffer")
         if (directByteBuffer.declaredMethods.any { it.name == "cleaner" }.not()) {
             return null

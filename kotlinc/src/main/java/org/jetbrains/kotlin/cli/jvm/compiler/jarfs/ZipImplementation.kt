@@ -163,5 +163,4 @@ private fun MappedByteBuffer.parseZip64CentralDirectoryRecordsNumberAndOffset():
     return Pair(entriesNumber.toInt(), offsetOfCentralDirectory.toInt())
 }
 
-private fun ByteBuffer.getUnsignedShort(offset: Int): Int =
-    java.lang.Short.toUnsignedInt(getShort(offset))
+private fun ByteBuffer.getUnsignedShort(offset: Int): Int = java.lang.Short.toUnsignedInt(getShort(offset))
