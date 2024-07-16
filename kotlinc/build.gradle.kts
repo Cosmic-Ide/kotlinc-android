@@ -50,7 +50,6 @@ dependencies {
     compileOnly(projects.theUnsafe)
 }
 
-
 publishing {
     publications {
         create<MavenPublication>("maven") {
